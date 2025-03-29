@@ -1,7 +1,7 @@
 const Item = require("../models/Item");
 const Container = require("../models/Container");
 
-// ✅ Identify expired or fully used items
+// ✅ Get the current state of all items (for mission planning)
 exports.identifyWaste = async (req, res) => {
     try {
         const now = new Date();

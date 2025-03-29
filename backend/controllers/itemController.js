@@ -50,11 +50,12 @@ exports.getItems = async (req, res) => {
 // ✅ Search for an item
 exports.searchItem = async (req, res) => {
     try {
-        const { itemId } = req.query;
+        const { itemId } = req.body;
+       
         const item = await Item.findOne({ itemId }).populate("containerId");
-
+        
         if (!item) {
-            return res.status(404).json({ success: false, message: "Item not found" });
+            return res.status(404).json({ success: false, message: "Item not found...." });
         }
 
         res.json({ success: true, item });
