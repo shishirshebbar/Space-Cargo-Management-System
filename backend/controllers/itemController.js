@@ -48,14 +48,33 @@ exports.getItems = async (req, res) => {
 };
 
 // ✅ Search for an item
+// exports.searchItem = async (req, res) => {
+//     try {
+//         const { itemId } = req.body;
+       
+//         const item = await Item.findOne({ itemId }).populate("containerId");
+        
+//         if (!item) {
+//             return res.status(404).json({ success: false, message: "Item not found...." });
+//         }
+
+//         res.json({ success: true, item });
+//     } catch (error) {
+//         res.status(500).json({ success: false, error: error.message });
+//     }
+// };
 exports.searchItem = async (req, res) => {
     try {
-        const { itemId } = req.body;
-       
-        const item = await Item.findOne({ itemId }).populate("containerId");
+        const { itemId } = req.query; // ✅ Get itemId from query parameters
         
+        if (!itemId) {
+            return res.status(400).json({ success: false, message: "Item ID is required." });
+        }
+
+        const item = await Item.findOne({ itemId }).populate("containerId");
+
         if (!item) {
-            return res.status(404).json({ success: false, message: "Item not found...." });
+            return res.status(404).json({ success: false, message: "Item not found." });
         }
 
         res.json({ success: true, item });
@@ -63,6 +82,7 @@ exports.searchItem = async (req, res) => {
         res.status(500).json({ success: false, error: error.message });
     }
 };
+
 
 // ✅ Retrieve an item
 exports.retrieveItem = async (req, res) => {
@@ -76,7 +96,7 @@ exports.retrieveItem = async (req, res) => {
 
         // Decrease the usage limit
         item.usageLimit -= 1;
-        if (item.usageLimit < 0) {
+        if (item.usageLimit <=0) {
             return res.status(400).json({ success: false, message: "Item is fully used and cannot be retrieved" });
         }
 
@@ -92,12 +112,21 @@ exports.retrieveItem = async (req, res) => {
 exports.identifyWaste = async (req, res) => {
     try {
         const now = new Date();
+        console.log("Current Date:", now); // Log current date
+
         const wasteItems = await Item.find({
-            $or: [{ expiryDate: { $lt: now } }, { usageLimit: { $lte: 0 } }]
+            $or: [
+                { expiryDate: { $lt: now } },  // Items expired before now
+                { usageLimit: { $lte: 0 } }   // Items that are fully used
+            ]
         });
+
+        console.log("Filtered Waste Items:", wasteItems); // Log results
 
         res.json({ success: true, wasteItems });
     } catch (error) {
+        console.error("Error Identifying Waste Items:", error.message);
         res.status(500).json({ success: false, error: error.message });
     }
 };
+
