@@ -37,8 +37,8 @@ const Dashboard = () => {
       <main className="flex-1 flex flex-col items-center justify-center px-4">
         <div className="w-full max-w-4xl bg-white shadow-md rounded-lg p-6">
           <div className="flex justify-between items-center">
-            <h2 className="text-2xl font-bold text-gray-900">Dashboard</h2>
-            {user && <p className="text-gray-700">Welcome, {user.username}</p>}
+            <h2 className="text-2xl font-bold text-gray-900 ml-90">Dashboard</h2>
+            
           </div>
           <div className="grid grid-cols-2 gap-6 mt-6">
             <Card
@@ -62,7 +62,7 @@ const Dashboard = () => {
               onClick={() => navigate("/view-controllers")}
             >
               <CardContent>
-                <CardTitle>View Controller</CardTitle>
+                <CardTitle>View Container</CardTitle>
               </CardContent>
             </Card>
             <Card

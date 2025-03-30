@@ -1,71 +1,97 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import { useAuth } from "../context/AuthContext";
+import axios from "axios";
 import Header from "../Comp/Header";
 import Footer from "../Comp/Footer";
-import axios from "axios";
-import { useAuth } from "../context/AuthContext";
-import { Card, CardContent, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 
 const ViewWaste = () => {
   const { token } = useAuth();
   const [wasteItems, setWasteItems] = useState([]);
-  const [returnManifest, setReturnManifest] = useState([]);
-
-  useEffect(() => {
-    fetchWasteState();
-  }, [token]);
-
-  const fetchWasteState = async () => {
+  const [undockingContainerId, setUndockingContainerId] = useState("");
+  const [returnManifest, setReturnManifest] = useState(null);
+  const [undockingMessage, setUndockingMessage] = useState(null);
+  const [moveWasteMessage, setMoveWasteMessage] = useState(null);
+  const fetchWasteItems = async () => {
     try {
-      const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/waste`, {
+      const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/items/waste`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setWasteItems(response.data);
+      setWasteItems(response.data.wasteItems || []);
     } catch (error) {
       console.error("Failed to fetch waste items", error);
     }
   };
 
-  const handleMoveToUndocking = async () => {
+  useEffect(() => {
+    if (token) fetchWasteItems();
+  }, [token]);
+
+  
+  const moveWasteToUndocking = async () => {
     try {
-      await axios.post(
+      if (!undockingContainerId) {
+        setMoveWasteMessage({ success: false, text: "Please enter a valid container ID." });
+        return;
+      }
+  
+      const response = await axios.post(
         `${import.meta.env.VITE_BACKEND_URL}/api/waste/move-to-undocking`,
-        {},
+        { undockingContainerId },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      fetchWasteState();
-      alert("Waste moved to undocking module!");
+  
+      // ✅ Set success message
+      setMoveWasteMessage({ success: true, text: response.data.message || "Waste moved successfully." });
+  
+      // Optionally, clear the input field
+      setUndockingContainerId("");
+  
+      // Refresh waste items list
+      fetchWasteItems();
     } catch (error) {
-      console.error("Failed to move waste", error);
+      console.error("❌ Failed to move waste", error);
+      
+      // ❌ Set error message
+      setMoveWasteMessage({
+        success: false,
+        text: error.response?.data?.message || "An error occurred while moving waste.",
+      });
     }
   };
-
-  const handleGenerateManifest = async () => {
+  const generateReturnManifest = async () => {
     try {
-      const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/waste/generate-manifest`, {
+      const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/waste/return-manifest`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setReturnManifest(response.data);
-      alert("Waste return manifest generated!");
+      setReturnManifest(response.data.returnManifest);
     } catch (error) {
-      console.error("Failed to generate manifest", error);
+      console.error("Failed to generate return manifest", error);
     }
   };
-
-  const handleCompleteUndocking = async () => {
+  
+  const completeUndocking = async () => {
     try {
-      await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/api/waste/complete-undocking`,
-        {},
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      fetchWasteState();
-      alert("Waste undocking completed!");
+      const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/waste/complete-undocking`, {}, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+  
+      // ✅ Set success message
+      setUndockingMessage({ success: true, text: response.data.message });
+  
+      // Refresh waste items list
+      fetchWasteItems();
     } catch (error) {
-      console.error("Failed to complete undocking", error);
+      console.error("Failed to complete waste undocking", error);
+  
+      // ❌ Set error message
+      setUndockingMessage({ success: false, text: error.response?.data?.message || "An error occurred" });
     }
   };
+  
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
@@ -73,73 +99,96 @@ const ViewWaste = () => {
       <main className="flex-1 p-6">
         <div className="max-w-5xl mx-auto bg-white shadow-md rounded-lg p-6">
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Waste Management</h2>
-
-          {/* Current Waste State */}
+          
+          {/* Section 1: Current State of Waste Items */}
           <Card className="mb-6">
             <CardContent>
-              <CardTitle>Current Waste Items</CardTitle>
-              <Table className="mt-4">
+              <CardTitle className="mt-1 mb-3">Current Waste Items</CardTitle>
+              <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Item ID</TableHead>
-                    <TableHead>Category</TableHead>
-                    <TableHead>Status</TableHead>
+                    <TableHead>ID</TableHead>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Usage Limit</TableHead>
+                    <TableHead>Expiry Date</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {wasteItems.map((item) => (
-                    <TableRow key={item.id}>
-                      <TableCell>{item.id}</TableCell>
-                      <TableCell>{item.category}</TableCell>
-                      <TableCell>{item.status}</TableCell>
+                  {wasteItems.length > 0 ? (
+                    wasteItems.map((item) => (
+                      <TableRow key={item._id}>
+                        <TableCell>{item.itemId}</TableCell>
+                        <TableCell>{item.name}</TableCell>
+                        <TableCell>{item.usageLimit}</TableCell>
+                        <TableCell>{item.expiryDate ? new Date(item.expiryDate).toISOString() : "N/A"}</TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={4} className="text-center">No waste items found</TableCell>
                     </TableRow>
-                  ))}
+                  )}
                 </TableBody>
               </Table>
             </CardContent>
           </Card>
 
-          {/* Move Waste to Undocking */}
           <Card className="mb-6">
-            <CardContent>
-              <CardTitle>Move Waste to Undocking Module</CardTitle>
-              <Button onClick={handleMoveToUndocking}>Move Waste</Button>
-            </CardContent>
-          </Card>
+  <CardContent>
+    <CardTitle className="mb-5">Move Waste to Undocking</CardTitle>
+    <div className="flex items-center gap-4 mt-4">
+      <Input
+        type="text"
+        placeholder="Enter Undocking Container ID"
+        value={undockingContainerId}
+        onChange={(e) => setUndockingContainerId(e.target.value)}
+      />
+      <Button onClick={moveWasteToUndocking}>Move Waste</Button>
+    </div>
 
-          {/* Generate Waste Return Manifest */}
+    {moveWasteMessage && (
+      <div className={`mt-4 p-2 rounded-lg text-white ${moveWasteMessage.success ? "bg-green-600" : "bg-red-600"}`}>
+        {moveWasteMessage.text}
+      </div>
+    )}
+  </CardContent>
+</Card>
+
+
+          {/* Section 3: Generate Waste Return Manifest */}
           <Card className="mb-6">
             <CardContent>
-              <CardTitle>Generate Waste Return Manifest</CardTitle>
-              <Button onClick={handleGenerateManifest}>Generate Manifest</Button>
-              {returnManifest.length > 0 && (
-                <Table className="mt-4">
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Item ID</TableHead>
-                      <TableHead>Return Status</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {returnManifest.map((item) => (
-                      <TableRow key={item.id}>
-                        <TableCell>{item.id}</TableCell>
-                        <TableCell>{item.status}</TableCell>
-                      </TableRow>
+              <CardTitle className="mb-3">Generate Waste Return Manifest</CardTitle>
+              <Button onClick={generateReturnManifest}>Generate Manifest</Button>
+              {returnManifest && (
+                <div className="mt-4 p-4 bg-gray-100 rounded-lg">
+                  <h4 className="text-lg font-bold">Manifest Details</h4>
+                  <p><strong>Total Weight:</strong> {returnManifest.totalWeight} kg</p>
+                  <p><strong>Total Volume:</strong> {returnManifest.totalVolume} cm³</p>
+                  <h5 className="font-bold mt-2">Items:</h5>
+                  <ul>
+                    {returnManifest.returnItems.map((item, index) => (
+                      <li key={index}>{item.itemId} - {item.name} ({item.reason})</li>
                     ))}
-                  </TableBody>
-                </Table>
+                  </ul>
+                </div>
               )}
             </CardContent>
           </Card>
 
-          {/* Complete Waste Undocking */}
           <Card className="mb-6">
-            <CardContent>
-              <CardTitle>Complete Waste Undocking</CardTitle>
-              <Button onClick={handleCompleteUndocking}>Complete Undocking</Button>
-            </CardContent>
-          </Card>
+  <CardContent>
+    <CardTitle className="mb-3">Complete Waste Undocking</CardTitle>
+    <Button onClick={completeUndocking} className="bg-red-600 hover:bg-red-700">Complete Undocking</Button>
+
+    {undockingMessage && (
+      <div className={`mt-4 p-2 rounded-lg text-white ${undockingMessage.success ? "bg-green-600" : "bg-red-600"}`}>
+        {undockingMessage.text}
+      </div>
+    )}
+  </CardContent>
+</Card>
+
         </div>
       </main>
       <Footer />
