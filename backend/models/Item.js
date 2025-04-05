@@ -3,15 +3,32 @@ const mongoose = require("mongoose");
 const ItemSchema = new mongoose.Schema({
     itemId: { type: String, required: true, unique: true },
     name: { type: String, required: true },
-    width: { type: Number, required: true },
-    depth: { type: Number, required: true },
-    height: { type: Number, required: true },
-    mass: { type: Number, required: true },
-    priority: { type: Number, required: true, min: 1, max: 100 }, // Priority from 1 to 100
-    expiryDate: { type: Date, default: null }, // Optional expiry date
-    usageLimit: { type: Number, required: true }, // Number of times an item can be used before disposal
-    preferredZone: { type: String, required: true }, // Suggested storage zone
-    containerId: { type: mongoose.Schema.Types.ObjectId, ref: "Container", default: null } // Reference to Container
-}, { timestamps: true });
+    width: { type: Number, required: true, default: 0 },
+    depth: { type: Number, required: true, default: 0 },
+    height: { type: Number, required: true, default: 0 },
+    priority: { type: Number, required: true, default: 1, min: 1 },
+    expiryDate: { 
+      type: Date, 
+      required: false,  // Allow `null`
+      default: null 
+    },
+    usageLimit: { type: Number, required: true, default: 1 },
+    currentUses: { type: Number, default: 0 },
+    preferredZone: { type: String, required: false },
+    containerId: { type: String, required: false },
+    position: {
+        startCoordinates: {
+            width: { type: Number, required: false },
+            depth: { type: Number, required: false },
+            height: { type: Number, required: false },
+        },
+        endCoordinates: {
+            width: { type: Number, required: false },
+            depth: { type: Number, required: false },
+            height: { type: Number, required: false },
+        },
+    },
+    createdAt: { type: Date, default: Date.now },
+});
 
 module.exports = mongoose.model("Item", ItemSchema);

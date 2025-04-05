@@ -1,90 +1,49 @@
-const Item = require("../models/Item");
-const Container = require("../models/Container");
+const Waste = require("../models/Waste");
 
-// ✅ Get the current state of all items (for mission planning)
+/**
+ * Identify expired or depleted items as waste.
+ */
 exports.identifyWaste = async (req, res) => {
-    try {
-        const now = new Date();
-        const wasteItems = await Item.find({
-            $or: [{ expiryDate: { $lt: now } }, { usageLimit: { $lte: 0 } }]
-        }).populate("containerId");
-
-        res.json({ success: true, wasteItems });
-    } catch (error) {
-        res.status(500).json({ success: false, error: error.message });
-    }
+  try {
+    const wasteItems = await Waste.find({ status: "expired" });
+    res.json({ success: true, wasteItems });
+  } catch (error) {
+    console.error("Error identifying waste:", error);
+    res.status(500).json({ success: false, message: "Failed to identify waste" });
+  }
 };
 
-// ✅ Move waste items to undocking module
-exports.moveWasteToUndocking = async (req, res) => {
-    try {
-        const { undockingContainerId } = req.body;
+/**
+ * Generate a return plan for waste disposal.
+ */
+exports.generateReturnPlan = async (req, res) => {
+  try {
+    const { wasteIds } = req.body;
+    const wasteItems = await Waste.find({ _id: { $in: wasteIds } });
 
-        const undockingContainer = await Container.findOne({ containerId: undockingContainerId });
-        if (!undockingContainer) {
-            return res.status(404).json({ success: false, message: "Undocking container not found" });
-        }
+    const returnPlan = wasteItems.map(item => ({
+      id: item._id,
+      disposalMethod: item.disposalMethod || "Standard Disposal",
+    }));
 
-        const now = new Date();
-        const wasteItems = await Item.find({
-            $or: [{ expiryDate: { $lt: now } }, { usageLimit: { $lte: 0 } }]
-        });
-
-        for (let item of wasteItems) {
-            item.containerId = undockingContainer._id;
-            await item.save();
-        }
-
-        res.json({ success: true, message: "Waste moved to undocking container", itemsMoved: wasteItems.length });
-    } catch (error) {
-        res.status(500).json({ success: false, error: error.message });
-    }
+    res.json({ success: true, returnPlan });
+  } catch (error) {
+    console.error("Error generating return plan:", error);
+    res.status(500).json({ success: false, message: "Failed to generate return plan" });
+  }
 };
 
-// ✅ Generate waste return manifest
-exports.generateReturnManifest = async (req, res) => {
-    try {
-        const now = new Date();
-        const wasteItems = await Item.find({
-            $or: [{ expiryDate: { $lt: now } }, { usageLimit: { $lte: 0 } }]
-        });
-
-        let totalWeight = wasteItems.reduce((sum, item) => sum + item.mass, 0);
-        let totalVolume = wasteItems.reduce((sum, item) => sum + (item.width * item.depth * item.height), 0);
-
-        res.json({
-            success: true,
-            returnManifest: {
-                returnItems: wasteItems.map(item => ({
-                    itemId: item.itemId,
-                    name: item.name,
-                    reason: item.usageLimit <= 0 ? "Used Up" : "Expired"
-                })),
-                totalWeight,
-                totalVolume
-            }
-        });
-
-    } catch (error) {
-        res.status(500).json({ success: false, error: error.message });
-    }
-};
-
-// ✅ Complete waste undocking (delete waste items)
+/**
+ * Complete the waste undocking process.
+ */
 exports.completeUndocking = async (req, res) => {
-    try {
-        const now = new Date();
-        const wasteItems = await Item.find({
-            $or: [{ expiryDate: { $lt: now } }, { usageLimit: { $lte: 0 } }]
-        });
+  try {
+    const { wasteIds } = req.body;
+    await Waste.deleteMany({ _id: { $in: wasteIds } });
 
-        const removedCount = wasteItems.length;
-        await Item.deleteMany({
-            $or: [{ expiryDate: { $lt: now } }, { usageLimit: { $lte: 0 } }]
-        });
-
-        res.json({ success: true, message: "Waste undocking complete", itemsRemoved: removedCount });
-    } catch (error) {
-        res.status(500).json({ success: false, error: error.message });
-    }
+    res.json({ success: true, message: "Waste successfully undocked and disposed." });
+  } catch (error) {
+    console.error("Error completing undocking:", error);
+    res.status(500).json({ success: false, message: "Failed to complete undocking" });
+  }
 };

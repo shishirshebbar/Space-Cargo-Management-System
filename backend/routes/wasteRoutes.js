@@ -1,23 +1,14 @@
 const express = require("express");
-const {
-    identifyWaste,
-    moveWasteToUndocking,
-    generateReturnManifest,
-    completeUndocking
-} = require("../controllers/wasteController");
-
 const router = express.Router();
+const wasteController = require("../controllers/wasteController");
 
-// ✅ Identify expired or fully used items
-router.get("/identify", identifyWaste);
+// Identify expired or depleted items as waste
+router.get("/identify", wasteController.identifyWaste);
 
-// ✅ Move waste items to the undocking module
-router.post("/move-to-undocking", moveWasteToUndocking);
+// Generate a return plan for waste disposal
+router.post("/return-plan", wasteController.generateReturnPlan);
 
-// ✅ Generate waste return manifest
-router.get("/return-manifest", generateReturnManifest);
-
-// ✅ Complete waste undocking (delete waste items)
-router.post("/complete-undocking", completeUndocking);
+// Complete the waste undocking process
+router.post("/complete-undocking", wasteController.completeUndocking);
 
 module.exports = router;

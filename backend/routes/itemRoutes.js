@@ -1,27 +1,14 @@
 const express = require("express");
-const {
-    addItem,
-    getItems,
-    searchItem,
-    retrieveItem,
-    identifyWaste
-} = require("../controllers/itemController");
-
 const router = express.Router();
+const itemController = require("../controllers/itemController");
 
-// ✅ Add a new item
-router.post("/add", addItem);
+// Item Search API
+router.post("/search", itemController.searchItem);
 
-// ✅ Get all items
-router.get("/", getItems);
+// Item Retrieval API
+router.post("/retrieve", itemController.retrieveItem);
 
-// ✅ Search for an item by itemId
-router.get("/search", searchItem);
-
-// ✅ Retrieve an item (decrement usage limit)
-router.post("/retrieve", retrieveItem);
-
-// ✅ Identify expired or fully used items
-router.get("/waste", identifyWaste);
+// Item Placement API (after retrieval)
+router.post("/place", itemController.placeItem);
 
 module.exports = router;

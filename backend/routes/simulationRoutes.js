@@ -1,12 +1,11 @@
 const express = require("express");
-const { simulateDays, getSimulationState } = require("../controllers/simulationController");
-
 const router = express.Router();
+const simulationController = require("../controllers/simulationController");
 
-// ✅ Simulate multiple days (Fast Forward)
-router.post("/simulate-days", simulateDays);
+// Simulate time passing (e.g., days) and update item states
+router.post("/day", simulationController.simulateTime);
 
-// ✅ Get the current state of all items (for mission planning)
-router.get("/state", getSimulationState);
+// Get the current state of all items
+router.get("/current-state", simulationController.getCurrentState);
 
 module.exports = router;

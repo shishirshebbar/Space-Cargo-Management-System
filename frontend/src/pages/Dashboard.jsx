@@ -1,82 +1,34 @@
-import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Header from "../Comp/Header";
-import Footer from "../Comp/Footer";
-import { Card, CardContent, CardTitle } from "@/components/ui/card";
-import axios from "axios";
-import { useAuth } from "../context/AuthContext";
+import GridCard from "@/comp/GridCard";
+import { Package, Box, Trash2, Activity, FileText, Import, Globe2 } from "lucide-react"; // Added icons for new items
 
 const Dashboard = () => {
-  const { token, logout } = useAuth();
-  const [user, setUser] = useState(null);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchUserProfile = async () => {
-      try {
-        const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/users/profile`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setUser(response.data);
-      } catch (error) {
-        console.error("Failed to fetch user profile", error);
-      }
-    };
-
-    if (token) fetchUserProfile();
-  }, [token]);
-
-  if (!token) {
-    navigate("/login");
-    return null;
-  }
+  // Dashboard sections with all features preserved and two new sections added
+  const sections = [
+    { title: "Item Management", path: "/items", icon: Package },
+    { title: "Placement", path: "/placement", icon: Box },
+    { title: "Import/Export", path: "/import-export", icon: Import },
+    { title: "Waste Management", path: "/waste", icon: Trash2 },
+    { title: "Simulation", path: "/simulation", icon: Activity },
+    { title: "Logs", path: "/logs", icon: FileText },
+    { title: "3D Virtual Tour", path: "/virtual-tour", icon: Globe2 },
+  ];
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-100">
-      <Header />
-      <main className="flex-1 flex flex-col items-center justify-center px-4">
-        <div className="w-full max-w-4xl bg-white shadow-md rounded-lg p-6">
-          <div className="flex justify-between items-center">
-            <h2 className="text-2xl font-bold text-gray-900 ml-90">Dashboard</h2>
-            
-          </div>
-          <div className="grid grid-cols-2 gap-6 mt-6">
-            <Card
-              className="cursor-pointer hover:shadow-lg"
-              onClick={() => navigate("/view-waste")}
-            >
-              <CardContent>
-                <CardTitle>View Waste</CardTitle>
-              </CardContent>
-            </Card>
-            <Card
-              className="cursor-pointer hover:shadow-lg"
-              onClick={() => navigate("/view-items")}
-            >
-              <CardContent>
-                <CardTitle>View Items</CardTitle>
-              </CardContent>
-            </Card>
-            <Card
-              className="cursor-pointer hover:shadow-lg"
-              onClick={() => navigate("/view-controllers")}
-            >
-              <CardContent>
-                <CardTitle>View Container</CardTitle>
-              </CardContent>
-            </Card>
-            <Card
-              className="cursor-pointer hover:shadow-lg"
-              onClick={() => navigate("/view-simulation")}
-            >
-              <CardContent>
-                <CardTitle>View Simulation</CardTitle>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </main>
-      <Footer />
+    <div className="p-8 bg-gray-100 min-h-screen">
+      <h1 className="text-3xl font-bold text-gray-800 mb-8">Dashboard</h1>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+        {sections.map((section) => (
+          <GridCard
+            key={section.title}
+            title={section.title}
+            icon={() => <section.icon className="h-12 w-12 text-gray-700 ml-[-20px]" />}
+            link={section.path}
+          />
+        ))}
+      </div>
     </div>
   );
 };

@@ -1,132 +1,94 @@
 const Item = require("../models/Item");
 const Container = require("../models/Container");
 
-// ✅ Add a new item
-exports.addItem = async (req, res) => {
-    try {
-        const { itemId, name, width, depth, height, mass, priority, expiryDate, usageLimit, preferredZone } = req.body;
-
-        // Find the preferred container
-        let container = await Container.findOne({ zone: preferredZone });
-
-        // If no preferred container is found, assign to any available container
-        if (!container) {
-            container = await Container.findOne();
-            if (!container) return res.status(400).json({ success: false, message: "No available container found" });
-        }
-
-        const newItem = new Item({
-            itemId,
-            name,
-            width,
-            depth,
-            height,
-            mass,
-            priority,
-            expiryDate,
-            usageLimit,
-            preferredZone,
-            containerId: container._id
-        });
-
-        await newItem.save();
-        res.status(201).json({ success: true, message: "Item added successfully", item: newItem });
-
-    } catch (error) {
-        res.status(500).json({ success: false, error: error.message });
-    }
-};
-
-// ✅ Get all items
-exports.getItems = async (req, res) => {
-    try {
-        const items = await Item.find().populate("containerId");
-        res.json({ success: true, items });
-    } catch (error) {
-        res.status(500).json({ success: false, error: error.message });
-    }
-};
-
-// ✅ Search for an item
-// exports.searchItem = async (req, res) => {
-//     try {
-//         const { itemId } = req.body;
-       
-//         const item = await Item.findOne({ itemId }).populate("containerId");
-        
-//         if (!item) {
-//             return res.status(404).json({ success: false, message: "Item not found...." });
-//         }
-
-//         res.json({ success: true, item });
-//     } catch (error) {
-//         res.status(500).json({ success: false, error: error.message });
-//     }
-// };
+/**
+ * Search for an item by ID or name.
+ * If found, returns item details and retrieval steps.
+ */
 exports.searchItem = async (req, res) => {
-    try {
-        const { itemId } = req.query; // ✅ Get itemId from query parameters
-        
-        if (!itemId) {
-            return res.status(400).json({ success: false, message: "Item ID is required." });
-        }
+  try {
+    const { itemId, itemName } = req.body;
 
-        const item = await Item.findOne({ itemId }).populate("containerId");
-
-        if (!item) {
-            return res.status(404).json({ success: false, message: "Item not found." });
-        }
-
-        res.json({ success: true, item });
-    } catch (error) {
-        res.status(500).json({ success: false, error: error.message });
+    if (!itemId && !itemName) {
+      return res.status(400).json({ success: false, message: "Provide itemId or itemName" });
     }
+
+    let query = {};
+    if (itemId) {
+      query.itemId = { $regex: new RegExp(`^${itemId}$`, "i") };  // Case-insensitive & flexible ID matching
+    } else {
+      query.name = { $regex: new RegExp(`^${itemName}$`, "i") };  // Case-insensitive name search
+    }
+
+    console.log("🔍 Search Query:", query);
+
+    const item = await Item.findOne(query);
+
+    if (!item) {
+      return res.json({ success: true, found: false });
+    }
+
+    res.json({
+      success: true,
+      found: true,
+      item,
+      retrievalSteps: [
+        { step: 1, action: "remove", itemId: item.itemId, itemName: item.name },
+        { step: 2, action: "retrieve", itemId: item.itemId, itemName: item.name },
+      ],
+    });
+  } catch (error) {
+    console.error("❌ Search Error:", error);
+    res.status(500).json({ success: false, message: "Failed to search for item" });
+  }
 };
 
 
-// ✅ Retrieve an item
+/**
+ * Retrieves an item (increments usage count and removes if expired or out of uses).
+ */
 exports.retrieveItem = async (req, res) => {
-    try {
-        const { itemId, userId } = req.body;
-        const item = await Item.findOne({ itemId });
+  try {
+    const { itemId} = req.body;
 
-        if (!item) {
-            return res.status(404).json({ success: false, message: "Item not found" });
-        }
+    const item = await Item.findOne({ itemId });
+    if (!item) return res.status(404).json({ success: false, message: "Item not found" });
 
-        // Decrease the usage limit
-        item.usageLimit -= 1;
-        if (item.usageLimit <=0) {
-            return res.status(400).json({ success: false, message: "Item is fully used and cannot be retrieved" });
-        }
+    item.usageLimit -= 1;
 
-        await item.save();
-
-        res.json({ success: true, message: "Item retrieved", remainingUses: item.usageLimit });
-    } catch (error) {
-        res.status(500).json({ success: false, error: error.message });
+    if (item.usageLimit <= 0) {
+      await Item.deleteOne({ itemId });
+    } else {
+      await item.save();
     }
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Retrieval Error:", error);
+    res.status(500).json({ success: false, message: "Failed to retrieve item" });
+  }
 };
 
-// ✅ Identify expired or fully used items
-exports.identifyWaste = async (req, res) => {
-    try {
-        const now = new Date();
-        console.log("Current Date:", now); // Log current date
+/**
+ * Places an item into a specified container with coordinates.
+ */
+exports.placeItem = async (req, res) => {
+  try {
+    const { itemId, userId, timestamp, containerId, position } = req.body;
 
-        const wasteItems = await Item.find({
-            $or: [
-                { expiryDate: { $lt: now } },  // Items expired before now
-                { usageLimit: { $lte: 0 } }   // Items that are fully used
-            ]
-        });
+    const item = await Item.findOne({ itemId });
+    if (!item) return res.status(404).json({ success: false, message: "Item not found" });
 
-        console.log("Filtered Waste Items:", wasteItems); // Log results
+    const container = await Container.findOne({ containerId });
+    if (!container) return res.status(404).json({ success: false, message: "Container not found" });
 
-        res.json({ success: true, wasteItems });
-    } catch (error) {
-        console.error("Error Identifying Waste Items:", error.message);
-        res.status(500).json({ success: false, error: error.message });
-    }
+    item.containerId = containerId;
+    item.position = position;
+    await item.save();
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Placement Error:", error);
+    res.status(500).json({ success: false, message: "Failed to place item" });
+  }
 };
-
