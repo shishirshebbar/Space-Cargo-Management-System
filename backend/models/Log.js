@@ -7,8 +7,8 @@ const logSchema = new mongoose.Schema({
   },
   userId: {
     type: String,
-    required: false, // Make userId optional
-    default: null // Default to null if not provided
+    required: false,
+    default: null 
   },
   actionType: {
     type: String,
@@ -25,7 +25,7 @@ const logSchema = new mongoose.Schema({
     },
     toContainer: {
       type: String,
-      required: false, // Not always required
+      required: false, 
       default: null
     },
     reason: {
@@ -35,7 +35,7 @@ const logSchema = new mongoose.Schema({
   }
 });
 
-// Check if the model is already compiled to avoid overwriting
+
 const Log = mongoose.models.Log || mongoose.model("Log", logSchema);
 
 module.exports = Log;

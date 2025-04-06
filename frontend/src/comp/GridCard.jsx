@@ -6,8 +6,8 @@ const GridCard = ({ title, icon: Icon, link }) => {
     <Link to={link} className="hover:scale-105 transition-transform">
       <Card className="w-48 h-48 flex flex-col justify-center items-center text-center shadow-md hover:shadow-lg">
         <CardHeader>
-          {Icon && <Icon className="h-10 w-10 text-gray-700" />} {/* Ensure icon renders correctly */}
-        </CardHeader>
+          {Icon && <Icon className="h-10 w-10 text-gray-700" />} 
+           </CardHeader>
         <CardContent>
           <CardTitle className="text-lg text-gray-800">{title}</CardTitle>
         </CardContent>

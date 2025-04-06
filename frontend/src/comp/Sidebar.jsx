@@ -9,17 +9,17 @@ const Sidebar = () => {
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
-      {/* Mobile Sidebar Toggle */}
+     
       <SheetTrigger asChild>
         <Button variant="ghost" size="icon" className="lg:hidden">
           <Menu className="h-6 w-6" />
         </Button>
       </SheetTrigger>
 
-      {/* Sidebar Content */}
+      
       <SheetContent side="left" className="w-64 bg-gray-100">
         <div className="flex flex-col space-y-4 mt-4">
-          {/* Sidebar Links */}
+         
           <LinkItem to="/" icon={Home} label="Home" onClick={() => setOpen(false)} />
           <LinkItem to="/dashboard" icon={Grid} label="Dashboard" onClick={() => setOpen(false)} />
           <LinkItem to="/import-export" icon={Package} label="Import/Export" onClick={() => setOpen(false)} />

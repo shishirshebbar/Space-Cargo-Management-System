@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
-const { placeItems } = require("../controllers/placementController"); // Ensure correct import
+const { placeItems } = require("../controllers/placementController"); 
 
-router.post("", placeItems); // Make sure function name matches
+router.post("", placeItems); 
 
 module.exports = router;

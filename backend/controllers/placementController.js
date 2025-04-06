@@ -49,7 +49,7 @@ exports.placeItems = async (req, res) => {
           },
         };
 
-        // ✅ Save the placement to the database
+   
         await Item.findOneAndUpdate(
           { itemId: item.itemId },
           {

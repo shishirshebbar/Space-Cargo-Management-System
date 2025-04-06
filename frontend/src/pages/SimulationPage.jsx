@@ -5,6 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import Navbar from "@/comp/Navbar";
+import SpaceScene from "@/comp/SpaceScene";
+import { Link } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 
 const SimulationPage = () => {
   const [days, setDays] = useState(""); // Number of days to simulate
@@ -70,7 +73,14 @@ const SimulationPage = () => {
 
   return (
     <div className="p-8 min-h-screen">
-      <Navbar />
+     <SpaceScene/>
+      <Link
+  to="/"
+  className="relative z-20 flex items-center justify-end w-full"
+>
+  <ArrowLeft size={24} sx={{ mr: 1 }} /> 
+  Home
+</Link>
       <Card className="max-w-3xl mx-auto mt-15">
         <CardHeader>
           <CardTitle className="text-2xl font-bold text-center">Item Simulation</CardTitle>

@@ -44,9 +44,10 @@ const VirtualTourPage = () => {
 
   return (
     
-    <div className="h-screen w-full">
+    <div className="h-screen w-full ">
         <Navbar/>
-        <div className="absolute top-10 left-1/2 -translate-x-1/2 z-10 bg-black/90 px-4 py-2 rounded-md shadow text-white-800 text-sm">
+        
+        <div className="absolute top-3 left-1/2 -translate-x-1/2 z-10 bg-black/90 px-4 py-2 rounded-md shadow text-white-800 text-l">
     🌀 Rotate to explore. Click on the buttons to explore the features.
   </div>
 

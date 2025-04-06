@@ -5,7 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import Navbar from "@/comp/Navbar";
-import { Loader2, Download } from "lucide-react";
+import { Loader2, Download ,ArrowLeft } from "lucide-react";
+import SpaceScene from "@/comp/SpaceScene";
+import { Link, useNavigate } from "react-router-dom";
 
 const ImportExportPage = () => {
   const [itemsFile, setItemsFile] = useState(null);
@@ -13,6 +15,9 @@ const ImportExportPage = () => {
   const [loadingItems, setLoadingItems] = useState(false);
   const [loadingContainers, setLoadingContainers] = useState(false);
   const [downloadingArrangement, setDownloadingArrangement] = useState(false);
+  
+
+  
 
   const handleImportItems = async () => {
     if (!itemsFile) {
@@ -72,15 +77,25 @@ const ImportExportPage = () => {
 
   return (
     <div className="p-8 min-h-screen">
-      <Navbar />
-      <div className="max-w-2xl mx-auto mt-10">
+      <SpaceScene/>
+      <Link
+  to="/"
+  className="relative z-20 flex items-center justify-end w-full"
+>
+  <ArrowLeft size={24} sx={{ mr: 1 }} /> 
+  Home
+</Link>
+
+
+      
+      <div className="max-w-2xl mx-auto mt-3">
         <h1 className="text-3xl font-bold text-center text-white-900 mb-8">Import / Export Data</h1>
 
         <div className="space-y-6">
           {/* Import Items Card */}
           <Card className="shadow-lg rounded-xl">
             <CardHeader>
-              <CardTitle className="text-xl font-semibold">Import Items</CardTitle>
+              <CardTitle className="text-xl font-semibold">Import Items (Upload items csv file)</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <Input 
@@ -102,7 +117,7 @@ const ImportExportPage = () => {
           {/* Import Containers Card */}
           <Card className="shadow-lg rounded-xl">
             <CardHeader>
-              <CardTitle className="text-xl font-semibold">Import Containers</CardTitle>
+              <CardTitle className="text-xl font-semibold">Import Containers (Upload containers csv file)</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <Input 
@@ -124,7 +139,7 @@ const ImportExportPage = () => {
           {/* Export Arrangement Card */}
           <Card className="shadow-lg rounded-xl">
             <CardHeader>
-              <CardTitle className="text-xl font-semibold">Export Arrangement</CardTitle>
+              <CardTitle className="text-xl font-semibold">Export Arrangement(Download CSV file with the current arrangement)</CardTitle>
             </CardHeader>
             <CardContent>
               <Button 

@@ -9,7 +9,7 @@ const ItemSchema = new mongoose.Schema({
     priority: { type: Number, required: true, default: 1, min: 1 },
     expiryDate: { 
       type: Date, 
-      required: false,  // Allow `null`
+      required: false,  
       default: null 
     },
     usageLimit: { type: Number, required: true, default: 1 },

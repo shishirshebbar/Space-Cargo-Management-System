@@ -5,6 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import Navbar from "@/comp/Navbar";
 import { Input } from "@/components/ui/input";
+import SpaceScene from "@/comp/SpaceScene";
+import { Link } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 
 const WastePage = () => {
   const [loading, setLoading] = useState(false);
@@ -76,14 +79,21 @@ const WastePage = () => {
   };
   return (
     <div className="p-8 min-h-screen">
-      <Navbar />
-      <Card className="max-w-4xl mx-auto shadow-lg mt-15"> {/* Increased width */}
+      <SpaceScene/>
+      <Link
+  to="/"
+  className="relative z-20 flex items-center justify-end w-full"
+>
+  <ArrowLeft size={24} sx={{ mr: 1 }} /> 
+  Home
+</Link>
+      <Card className="max-w-4xl mx-auto shadow-lg mt-15"> 
         <CardHeader>
           <CardTitle className="text-2xl font-bold text-center">Waste Management</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 gap-10 mb-6">
-            <div className="flex flex-row space-x-6 justify-center"> {/* Increased space between buttons */}
+            <div className="flex flex-row space-x-6 justify-center">
               <Button onClick={handleIdentifyWaste} disabled={loading} className="w-1/3">
                 {loading ? "Identifying..." : "Identify Waste"}
               </Button>

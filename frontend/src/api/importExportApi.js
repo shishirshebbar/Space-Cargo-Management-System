@@ -2,11 +2,7 @@ import axios from "axios";
 
 const BASE_URL = "http://localhost:8000/api/import";
 
-/**
- * Import items from a CSV file.
- * @param {File} file - CSV file containing item data.
- * @returns {Promise} Axios POST request promise.
- */
+
 export const importItems = async (file) => {
   try {
     const formData = new FormData();
@@ -23,11 +19,6 @@ export const importItems = async (file) => {
   }
 };
 
-/**
- * Import containers from a CSV file.
- * @param {File} file - CSV file containing container data.
- * @returns {Promise} Axios POST request promise.
- */
 export const importContainers = async (file) => {
   try {
     const formData = new FormData();

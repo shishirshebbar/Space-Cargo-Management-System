@@ -8,12 +8,10 @@ const { Readable } = require("stream");
 
 
 
-/**
- * Import items from CSV file with debugging logs
- */
+//import imtems from csv
 exports.importItems = async (req, res) => {
     if (!req.file) {
-        console.error("❌ No file uploaded");
+        console.error(" No file uploaded");
         return res.status(400).json({ success: false, message: "No file uploaded" });
     }
 
@@ -23,19 +21,19 @@ exports.importItems = async (req, res) => {
     const savePromises = [];
     let rowCount = 0;
 
-    console.log(`📂 Processing CSV file: ${filePath}`);
+    console.log(` Processing CSV file: ${filePath}`);
 
     fs.createReadStream(filePath)
         .pipe(csv())
         .on("headers", (headers) => {
-            console.log("🔍 CSV Headers Detected:", headers);
+            console.log(" CSV Headers Detected:", headers);
         })
         .on("data", (row) => {
             rowCount++;
 
             const processRow = async () => {
                 try {
-                    console.log(`📌 Processing Row #${rowCount}:`, row);
+                    console.log(` Processing Row #${rowCount}:`, row);
 
                     const itemId = row["item_id"]?.trim();
                     const name = row["name"]?.trim();
@@ -47,11 +45,11 @@ exports.importItems = async (req, res) => {
                     let expiryDate = row["expiry_date"]?.trim();
 
                     if (!itemId || !name) {
-                        console.warn(`⚠️ Skipping row ${rowCount}: Missing itemId or name (ID=${itemId})`);
+                        console.warn(`Skipping row ${rowCount}: Missing itemId or name (ID=${itemId})`);
                         return;
                     }
 
-                    // Handle N/A or invalid expiry dates
+                    
                     if (!expiryDate || expiryDate.toLowerCase() === "n/a") {
                         expiryDate = null;
                     } else {
@@ -73,9 +71,9 @@ exports.importItems = async (req, res) => {
 
                     await newItem.save();
                     importedItems.push(newItem);
-                    console.log(`✅ Saved Item #${rowCount}: ${itemId} - ${name}`);
+                    console.log(`Saved Item #${rowCount}: ${itemId} - ${name}`);
                 } catch (error) {
-                    console.error(`❌ Error saving item at row ${rowCount}:`, error.message);
+                    console.error(`Error saving item at row ${rowCount}:`, error.message);
                     errors.push({ row: rowCount, message: error.message });
                 }
             };
@@ -84,9 +82,9 @@ exports.importItems = async (req, res) => {
         })
         .on("end", async () => {
             try {
-                await Promise.all(savePromises); // Ensure all DB saves complete
-                console.log(`✅ CSV Processing Complete. Total Rows Read: ${rowCount}`);
-                console.log(`📊 Summary: Imported: ${importedItems.length}, Errors: ${errors.length}`);
+                await Promise.all(savePromises); 
+                console.log(`CSV Processing Complete. Total Rows Read: ${rowCount}`);
+                console.log(` Summary: Imported: ${importedItems.length}, Errors: ${errors.length}`);
 
                 fs.unlinkSync(filePath);
 
@@ -96,25 +94,23 @@ exports.importItems = async (req, res) => {
                     errors,
                 });
             } catch (finalError) {
-                console.error("❌ Unexpected error during finalization:", finalError);
+                console.error("Unexpected error during finalization:", finalError);
                 return res.status(500).json({ success: false, message: "Unexpected error during import." });
             }
         })
         .on("error", (error) => {
-            console.error("❌ CSV Parsing Error:", error);
+            console.error(" CSV Parsing Error:", error);
             return res.status(500).json({ success: false, message: "CSV parsing failed" });
         });
 };
 
-/**
- * Import containers from CSV file with debugging logs
- */
+//import containers from csv
 exports.importContainers = async (req, res) => {
-    console.log("📢 Incoming request: POST /api/import/containers");
-    console.log("📂 Uploaded File Details:", req.file);
+    console.log("Incoming request: POST /api/import/containers");
+    console.log(" Uploaded File Details:", req.file);
 
     if (!req.file) {
-        console.error("❌ No file uploaded");
+        console.error(" No file uploaded");
         return res.status(400).json({ success: false, message: "No file uploaded" });
     }
 
@@ -124,7 +120,7 @@ exports.importContainers = async (req, res) => {
     const savePromises = [];
     let rowCount = 0;
 
-    console.log(`📌 Processing CSV file: ${filePath}`);
+    console.log(`Processing CSV file: ${filePath}`);
 
     fs.createReadStream(filePath)
         .pipe(csv())
@@ -135,7 +131,7 @@ exports.importContainers = async (req, res) => {
             rowCount++;
 
             const processRow = async () => {
-                console.log(`📌 Processing Row #${rowCount}:`, row);
+                console.log(` Processing Row #${rowCount}:`, row);
 
                 try {
                     const containerId = row["container_id"]?.trim();
@@ -159,9 +155,9 @@ exports.importContainers = async (req, res) => {
 
                     await newContainer.save();
                     importedContainers.push(newContainer);
-                    console.log(`✅ Successfully imported container #${rowCount}: ${containerId}`);
+                    console.log(` Successfully imported container #${rowCount}: ${containerId}`);
                 } catch (error) {
-                    console.error(`❌ Error saving container at row ${rowCount}:`, error.message);
+                    console.error(` Error saving container at row ${rowCount}:`, error.message);
                     errors.push({ row: rowCount, message: error.message });
                 }
             };
@@ -170,11 +166,11 @@ exports.importContainers = async (req, res) => {
         })
         .on("end", async () => {
             try {
-                await Promise.all(savePromises); // Ensure all saves are completed
-                console.log(`✅ CSV Processing Complete. Total Rows Read: ${rowCount}`);
-                console.log(`📊 Summary: Imported: ${importedContainers.length}, Errors: ${errors.length}`);
+                await Promise.all(savePromises); 
+                console.log(` CSV Processing Complete. Total Rows Read: ${rowCount}`);
+                console.log(` Summary: Imported: ${importedContainers.length}, Errors: ${errors.length}`);
 
-                fs.unlinkSync(filePath); // Cleanup uploaded file
+                fs.unlinkSync(filePath); 
 
                 return res.json({
                     success: true,
@@ -182,25 +178,25 @@ exports.importContainers = async (req, res) => {
                     errors,
                 });
             } catch (finalError) {
-                console.error("❌ Unexpected error during finalization:", finalError);
+                console.error(" Unexpected error during finalization:", finalError);
                 return res.status(500).json({ success: false, message: "Unexpected error during import." });
             }
         })
         .on("error", (error) => {
-            console.error("❌ CSV Parsing Error:", error);
+            console.error(" CSV Parsing Error:", error);
             return res.status(500).json({ success: false, message: "CSV parsing failed" });
         });
 };
 
 
 
-// controllers/exportController.js
 
 
 
+//export csv file
 exports.exportArrangement = async (req, res) => {
     try {
-      console.log("📦 Fetching arranged items from DB...");
+      console.log("Fetching arranged items from DB...");
   
       const arrangedItems = await Item.find({
         containerId: { $ne: null },
@@ -209,11 +205,11 @@ exports.exportArrangement = async (req, res) => {
       });
   
       if (arrangedItems.length === 0) {
-        console.warn("⚠️ No arranged items found");
+        console.warn("No arranged items found");
         return res.status(404).send("No arranged items found.");
       }
   
-      console.log(`✅ Found ${arrangedItems.length} arranged items`);
+      console.log(`Found ${arrangedItems.length} arranged items`);
   
       const formattedData = arrangedItems.map(item => ({
         "Item ID": item.itemId,
@@ -226,10 +222,10 @@ exports.exportArrangement = async (req, res) => {
       res.header("Content-Type", "text/csv");
       res.attachment("arranged_items.csv");
   
-      console.log("📤 Sending CSV file to client");
+      console.log("Sending CSV file to client");
       return res.send(csv);
     } catch (error) {
-      console.error("❌ Error exporting arrangement:", error);
+      console.error("Error exporting arrangement:", error);
       res.status(500).json({ success: false, message: "Internal Server Error" });
     }
   };

@@ -50,7 +50,7 @@ const SpaceScene = () => {
         left: 0,
         width: `${dimensions.width}px`,
         height: `${dimensions.height}px`,
-        zIndex: 0,
+        zIndex: -1,  // Set zIndex lower to make sure it stays in the background
         overflow: "hidden",
       }}
     >
@@ -68,7 +68,7 @@ const SpaceScene = () => {
           saturation={0}
           fade
         />
-               <OrbitControls
+        <OrbitControls
           enableZoom={false}
           enablePan={false}
           autoRotate
@@ -78,5 +78,6 @@ const SpaceScene = () => {
     </div>
   );
 };
+
 
 export default SpaceScene;

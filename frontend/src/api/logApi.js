@@ -2,7 +2,7 @@ import axios from "axios";
 
 const BASE_URL = "http://localhost:8000/api";
 
-// Function to fetch logs from the backend
+
 export const getLogs = async () => {
   try {
     const response = await axios.get(`${BASE_URL}/logs`);

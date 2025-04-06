@@ -2,10 +2,6 @@ import axios from "axios";
 
 const BASE_URL = "http://localhost:8000/api/waste";
 
-/**
- * Identify expired or depleted items as waste.
- * @returns {Promise} Axios GET request promise.
- */
 export const identifyWaste = async () => {
   try {
     const response = await axios.get(`${BASE_URL}/identify`);
@@ -16,11 +12,7 @@ export const identifyWaste = async () => {
   }
 };
 
-/**
- * Generate a return plan for waste disposal.
- * @param {Object} data - Waste return plan data.
- * @returns {Promise} Axios POST request promise.
- */
+
 export const generateReturnPlan = async (data) => {
   try {
     const response = await axios.post(`${BASE_URL}/return-plan`, data);
@@ -31,11 +23,6 @@ export const generateReturnPlan = async (data) => {
   }
 };
 
-/**
- * Complete the waste undocking process.
- * @param {Object} data - Waste undocking completion data.
- * @returns {Promise} Axios POST request promise.
- */
 export const completeUndocking = async (data) => {
   try {
     const response = await axios.post(`${BASE_URL}/complete-undocking`, data);

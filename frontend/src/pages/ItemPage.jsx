@@ -6,6 +6,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import Navbar from "@/comp/Navbar";
+import SpaceScene from "@/comp/SpaceScene";
+import { Link } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 
 const ItemPage = () => {
   const [itemId, setItemId] = useState("");
@@ -145,7 +148,14 @@ const ItemPage = () => {
 
   return (
     <div className="p-8 min-h-screen">
-      <Navbar />
+      <SpaceScene/>
+      <Link
+  to="/"
+  className="relative z-20 flex items-center justify-end w-full"
+>
+  <ArrowLeft size={24} sx={{ mr: 1 }} /> 
+  Home
+</Link>
       <Card className="max-w-2xl mx-auto shadow-lg mt-15">
         <CardHeader>
           <CardTitle className="text-2xl font-bold text-center">Item Management</CardTitle>

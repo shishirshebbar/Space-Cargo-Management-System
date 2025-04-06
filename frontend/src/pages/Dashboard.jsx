@@ -5,8 +5,7 @@ import { Package, Box, Trash2, Activity, FileText, Import, Globe2 } from "lucide
 const Dashboard = () => {
   const navigate = useNavigate();
 
-  // Dashboard sections with all features preserved and two new sections added
-  const sections = [
+    const sections = [
     { title: "Item Management", path: "/items", icon: Package },
     { title: "Placement", path: "/placement", icon: Box },
     { title: "Import/Export", path: "/import-export", icon: Import },

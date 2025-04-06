@@ -1,35 +1,24 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { Menu } from "lucide-react";
+import { ArrowLeft, Menu } from "lucide-react";
 
 const Navbar = ({ toggleSidebar }) => {
   return (
-    <header className="bg-white shadow-md p-4 flex items-center justify-between">
-      {/* Sidebar Toggle Button */}
-      <Button 
-        variant="ghost" 
-        size="icon" 
-        onClick={toggleSidebar} 
-        className="lg:hidden"
-      >
-        <Menu className="h-6 w-6" />
-      </Button>
+    <header className="bg-white shadow-md p-5 flex items-center justify-between">
+      
+      
 
-      {/* Logo */}
-      <Link to="/" className="text-2xl font-bold text-gray-800">
-        Space Cargo Management
-      </Link>
-
-      {/* Navigation Links */}
-      <nav className="hidden lg:flex space-x-4">
-        <Button variant="link" asChild>
-          <Link to="/">Home</Link>
-        </Button>
-        
+      <Link
+              to="/"
+              className="relative z-20 flex items-center justify-end w-full font-bold text-gray-900"
+            >
+              <ArrowLeft size={24} sx={{ mr: 1 }} /> 
+              Home
+            </Link>
         
        
-      </nav>
+     
     </header>
   );
 };

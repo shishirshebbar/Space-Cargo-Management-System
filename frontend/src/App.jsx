@@ -24,7 +24,7 @@ const App = () => {
           
 
           {/* Page Content */}
-          <div className="p-6">
+          <div className="p-0">
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/dashboard" element={<Dashboard />} />

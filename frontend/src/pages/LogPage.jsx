@@ -4,8 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableHead, TableRow, TableCell, TableBody } from "@/components/ui/table";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2 } from "lucide-react";
 import Navbar from "@/comp/Navbar";
+import SpaceScene from "@/comp/SpaceScene";
+import { Link } from "react-router-dom";
 
 const LogPage = () => {
   const [logs, setLogs] = useState([]);
@@ -25,15 +27,22 @@ const LogPage = () => {
 
   return (
     <div className="p-8 min-h-screen">
-      <Navbar />
-      <Card className="max-w-3xl mx-auto shadow-lg mt-15">
+      <SpaceScene/>
+      <Link
+  to="/"
+  className="relative z-20 flex items-center justify-end w-full"
+>
+  <ArrowLeft size={24} sx={{ mr: 1 }} /> 
+  Home
+</Link>
+      <Card className="max-w-4xl mx-auto shadow-lg mt-15">
         <CardHeader>
           <CardTitle className="text-2xl font-bold text-center">System Logs</CardTitle>
         </CardHeader>
         <CardContent>
           <Button
             onClick={fetchLogs}
-            className="w-1/3  mb-6 ml-60 hover:bg-blue-700 text-white"
+            className="w-1/3  mb-6 ml-70 hover:bg-blue-700 text-white"
             disabled={loading}
           >
             {loading ? "Loading Logs..." : "Get Logs"}

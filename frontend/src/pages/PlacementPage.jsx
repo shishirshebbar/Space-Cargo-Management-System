@@ -5,6 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
 import Navbar from "@/comp/Navbar";
+import SpaceScene from "@/comp/SpaceScene";
+import { Link } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 
 const PlacementPage = () => {
   const [item, setItem] = useState({
@@ -73,8 +76,15 @@ const PlacementPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-6">
-      <Navbar />
+    <div className="min-h-screen p-8">
+      <SpaceScene/>
+      <Link
+  to="/"
+  className="relative z-20 flex items-center justify-end w-full"
+>
+  <ArrowLeft size={24} sx={{ mr: 1 }} /> 
+  Home
+</Link>
       <div className="max-w-4xl mx-auto space-y-10 mt-10">
         <h1 className="text-3xl font-bold text-center">Item Placement</h1>
 

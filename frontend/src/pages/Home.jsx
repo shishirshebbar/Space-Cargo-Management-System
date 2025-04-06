@@ -40,21 +40,24 @@ const Home = () => {
       {/* Foreground Content */}
       <div
   ref={containerRef}
-  className="relative z-10 flex flex-col items-center justify-center px-4 py-10"
+  className="relative z-10 flex flex-col items-center justify-center px-4 py-3"
 >
 
-        <h1 className="text-4xl font-bold mb-4 text-center drop-shadow-lg">
-          Space Cargo Management System
-        </h1>
+<h1 className="text-4xl mt-2 font-bold mb-4 text-center text-white glowing-text">
+  Space Cargo Management System
+</h1>
 
-        <p className="max-w-3xl text-gray-300 text-lg mb-5 text-center drop-shadow-md">
-          Spaceship Cargo Management is a cutting-edge 3D visualization system
-          designed to streamline cargo stowage for interplanetary missions. By
-          integrating intelligent space optimization and real-time inventory
-          tracking, our platform ensures
-          efficient utilization of cargo holds, reducing waste and improving
-          mission logistics.
-        </p>
+<p className="max-w-4xl text-gray-300 text-lg mb-5 text-center drop-shadow-md">
+  Spaceship Cargo Management is a cutting-edge 3D visualization system
+  designed to streamline cargo stowage for interplanetary missions. By
+  integrating intelligent space optimization and real-time inventory
+  tracking, our platform ensures
+  efficient utilization of cargo holds, reducing waste and improving
+  mission logistics.
+</p>
+
+
+
 
         <div className="flex items-center justify-center gap-10 w-full max-w-6xl relative z-10">
           {/* Left Column */}
@@ -77,7 +80,9 @@ const Home = () => {
           <div className="flex flex-col items-center" ref={centerRef}>
           <Button
   className="px-18 py-10 text-2xl font-semibold rounded-xl shadow-lg transition duration-300 ease-in-out
-             bg-blue-600 hover:bg-blue-700 hover:shadow-[0_0_25px_rgba(59,130,246,0.8)] cursor-pointer"
+             bg-blue-600 hover:bg-blue-700 cursor-pointer
+             focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-blue-200
+             hover:shadow-[0_0_25px_rgba(59,130,246,0.8)] hover:ring-2 hover:ring-blue-500 hover:ring-offset-2 hover:ring-offset-blue-200"
   onClick={() => navigate("/virtual-tour")}
 >
   Start a 3D Virtual Tour

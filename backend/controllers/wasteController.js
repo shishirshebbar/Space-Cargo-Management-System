@@ -1,9 +1,5 @@
 const Waste = require("../models/Waste");
-const Log = require("../models/Log"); // Assuming you have a Log model for logging actions
-
-/**
- * Identify expired or depleted items as waste.
- */
+const Log = require("../models/Log"); 
 exports.identifyWaste = async (req, res) => {
   try {
     const wasteDocs = await Waste.find();
@@ -12,20 +8,20 @@ exports.identifyWaste = async (req, res) => {
       doc.wasteItems
         .filter(item => ["Expired", "Out of Uses"].includes(item.reason))
         .map(item => {
-          // Log the action without userId (optional)
+          
           const logEntry = new Log({
             timestamp: new Date().toISOString(),
-            userId: null, // User ID is optional, set as null if not available
+            userId: null, 
             actionType: "Identify Waste",
             itemId: item.itemId,
             details: {
               fromContainer: item.containerId,
-              toContainer: null, // Not applicable here as we're only identifying waste
+              toContainer: null, 
               reason: item.reason
             }
           });
 
-          // Save the log entry
+          
           logEntry.save();
 
           return {
@@ -70,13 +66,13 @@ exports.generateReturnPlan = async (req, res) => {
     const retrievalSteps = [];
 
     wasteItems.forEach((item, index) => {
-      // Simulate item weight and volume
+      
       const volume =
         (item.position.endCoordinates.width - item.position.startCoordinates.width) *
         (item.position.endCoordinates.depth - item.position.startCoordinates.depth) *
         (item.position.endCoordinates.height - item.position.startCoordinates.height);
 
-      const weight = volume * 0.2; // Assume density for mock calculation
+      const weight = volume * 0.2; 
 
       if (totalWeight + weight > maxWeight) return;
 
@@ -104,20 +100,20 @@ exports.generateReturnPlan = async (req, res) => {
         itemName: item.name
       });
 
-      // Logging the action
+      
       const logEntry = new Log({
-        timestamp: new Date().toISOString(), // Current timestamp
-        userId: req.user ? req.user.id : "unknown", // If user is logged in, use userId, else "unknown"
+        timestamp: new Date().toISOString(), 
+        userId: req.user ? req.user.id : "unknown", 
         actionType: "Generate Return Plan",
         itemId: item.itemId,
         details: {
           fromContainer: item.containerId,
           toContainer: undockingContainerId,
-          reason: item.reason // Log the reason (expired, out of use, etc.)
+          reason: item.reason 
         }
       });
 
-      // Save log entry to the database
+      
       logEntry.save();
     });
 
