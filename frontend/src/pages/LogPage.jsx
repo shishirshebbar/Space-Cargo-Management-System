@@ -1,95 +1,117 @@
-import { useEffect, useState } from "react";
-import { getLogs } from "@/api/logApi";  // Make sure the path is correct
+import { useState } from "react";
+import { getLogs } from "@/api/logApi"; // Import the getLogs function from your API utility
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableHead, TableRow, TableCell, TableBody } from "@/components/ui/table";
-import { toast } from "sonner";
-import { ArrowLeft, Loader2 } from "lucide-react";
-import Navbar from "@/comp/Navbar";
-import SpaceScene from "@/comp/SpaceScene";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { toast } from "sonner"; // Assuming you're using this for toast notifications
 import { Link } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 
-const LogPage = () => {
-  const [logs, setLogs] = useState([]);
-  const [loading, setLoading] = useState(false);
+const LogsPage = () => {
+  const [itemId, setItemId] = useState(""); // State to store itemId input
+  const [logs, setLogs] = useState([]); // State to store logs fetched from the API
+  const [loading, setLoading] = useState(false); // State for loading state
 
-  // Fetch logs when the "Get Logs" button is clicked
+  // Handle input change for itemId
+  const handleItemIdChange = (e) => {
+    setItemId(e.target.value);
+  };
+
+  // Function to fetch logs based on itemId
   const fetchLogs = async () => {
+    if (!itemId) {
+      toast.error("Item ID is required to fetch logs.");
+      return;
+    }
+
     setLoading(true);
     try {
-      const response = await getLogs();
-      setLogs(response.logs || []);
+      const logsData = await getLogs(itemId); // Fetch logs using the getLogs API function
+      setLogs(logsData.logs || []); // Update the state with the fetched logs
+      toast.success("Logs fetched successfully!");
     } catch (error) {
-      toast.error("Failed to fetch logs");
+      toast.error(error.message || "Failed to fetch logs.");
     }
     setLoading(false);
   };
 
   return (
-    <div className="p-8 min-h-screen">
-      <SpaceScene/>
-      <Link
-  to="/"
-  className="relative z-20 flex items-center justify-end w-full"
->
-  <ArrowLeft size={24} sx={{ mr: 1 }} /> 
-  Home
-</Link>
-      <Card className="max-w-4xl mx-auto shadow-lg mt-15">
-        <CardHeader>
-          <CardTitle className="text-2xl font-bold text-center">System Logs</CardTitle>
-        </CardHeader>
-        <CardContent>
+    <div className="min-h-screen p-8">
+      <Link to="/" className="relative z-20 flex items-center justify-end w-full">
+        <ArrowLeft size={24} sx={{ mr: 1 }} />
+        Home
+      </Link>
+      <div className="max-w-4xl mx-auto space-y-10 mt-5">
+        <h1 className="text-3xl font-bold text-center">Fetch Item Logs</h1>
+
+        {/* Item ID Input */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Enter Item ID</CardTitle>
+          </CardHeader>
+          <CardContent className="grid grid-cols-1 gap-4">
+            <Input
+              name="itemId"
+              type="text"
+              placeholder="Enter Item ID"
+              value={itemId}
+              onChange={handleItemIdChange}
+            />
+          </CardContent>
+        </Card>
+
+        {/* Button to fetch logs */}
+        <div className="text-center">
           <Button
+            className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-semibold transition duration-300"
             onClick={fetchLogs}
-            className="w-1/3  mb-6 ml-70 hover:bg-blue-700 text-white"
             disabled={loading}
           >
-            {loading ? "Loading Logs..." : "Get Logs"}
+            {loading ? "Fetching Logs..." : "Fetch Logs"}
           </Button>
+        </div>
 
-          {/* Log Table */}
-          {loading ? (
-            <div className="flex justify-center items-center">
-              <Loader2 className="animate-spin text-gray-400" size={32} />
-            </div>
-          ) : logs.length === 0 ? (
-            <p className="text-gray-400 text-center mt-4">No logs found.</p>
-          ) : (
-            <div className="overflow-x-auto">
-            <Table className="border border-gray-700 w-full">
-              <TableHead className=" text-gray-300 grid grid-cols-[20%_10%_20%_10%_25%_15%]"> {/* Define column widths */}
-                <TableRow className="contents"> {/* Use contents to make TableRow disappear from grid flow */}
-                  <TableCell className="text-gray-900 font-semibold px-4 py-3">Timestamp</TableCell>
-                  <TableCell className="text-gray-900 font-semibold px-4 py-3">User ID</TableCell>
-                  <TableCell className="text-gray-900 font-semibold px-4 py-3">Action Type</TableCell>
-                  <TableCell className="text-gray-900 font-semibold px-4 py-3">Item ID</TableCell>
-                  <TableCell className="text-gray-900 font-semibold px-4 py-3">From → To</TableCell>
-                  <TableCell className="text-gray-900 font-semibold px-4 py-3">Reason</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody className="grid grid-cols-[20%_10%_20%_10%_25%_15%]"> {/* Match header columns */}
+        {/* Display Logs in Table */}
+        {logs && logs.length > 0 && (
+          <div className="overflow-x-auto mt-6">
+            <table className="border border-gray-700 w-full">
+              <thead className="text-gray-300">
+                <tr>
+                  <th className="px-4 py-3 text-left">Timestamp</th>
+                  <th className="px-4 py-3 text-left">User ID</th>
+                  <th className="px-4 py-3 text-left">Action Type</th>
+                  <th className="px-4 py-3 text-left">Item ID</th>
+                  <th className="px-4 py-3 text-left">From → To</th>
+                  <th className="px-4 py-3 text-left">Reason</th>
+                </tr>
+              </thead>
+              <tbody className="text-gray-400">
                 {logs.map((log, index) => (
-                  <TableRow key={index} className="contents"> {/* Use contents */}
-                    <TableCell className="px-4 py-3">{new Date(log.timestamp).toLocaleString()}</TableCell>
-                    <TableCell className="px-4 py-3">{log.userId || "-"}</TableCell>
-                    <TableCell className="px-4 py-3">{log.actionType}</TableCell>
-                    <TableCell className="px-4 py-3">{log.itemId || "-"}</TableCell>
-                    <TableCell className="px-4 py-3">
+                  <tr key={index}>
+                    <td className="px-4 py-3">{new Date(log.timestamp).toLocaleString()}</td>
+                    <td className="px-4 py-3">{log.userId || "-"}</td>
+                    <td className="px-4 py-3">{log.actionType}</td>
+                    <td className="px-4 py-3">{log.itemId || "-"}</td>
+                    <td className="px-4 py-3">
                       {log.details?.fromContainer || "-"} → {log.details?.toContainer || "-"}
-                    </TableCell>
-                    <TableCell className="px-4 py-3">{log.details?.reason || "-"}</TableCell>
-                  </TableRow>
+                    </td>
+                    <td className="px-4 py-3">{log.details?.reason || "-"}</td>
+                  </tr>
                 ))}
-              </TableBody>
-            </Table>
+              </tbody>
+            </table>
           </div>
+        )}
 
-          )}
-        </CardContent>
-      </Card>
+        {/* If no logs are found */}
+        {logs && logs.length === 0 && !loading && (
+          <div className="text-center text-red-500 mt-4">
+            No logs found for the provided Item ID.
+          </div>
+        )}
+      </div>
     </div>
   );
 };
 
-export default LogPage;
+export default LogsPage;

@@ -32,7 +32,7 @@ const PlacementPage = () => {
 
   const [loading, setLoading] = useState(false);
   const [response, setResponse] = useState(null);
-
+  const [successMessage, setSuccessMessage] = useState(""); 
   const handleItemChange = (e) => {
     setItem({ ...item, [e.target.name]: e.target.value });
   };
@@ -69,23 +69,22 @@ const PlacementPage = () => {
       const res = await placeItems(payload);
       setResponse(res);
       toast.success("Item placed successfully!");
+      setSuccessMessage("Item placed successfully!"); // Set success message
     } catch (err) {
       toast.error(err.response?.data?.message || "Placement failed");
+      setSuccessMessage(""); // Clear success message on error
     }
     setLoading(false);
   };
 
   return (
     <div className="min-h-screen p-8">
-      <SpaceScene/>
-      <Link
-  to="/"
-  className="relative z-20 flex items-center justify-end w-full"
->
-  <ArrowLeft size={24} sx={{ mr: 1 }} /> 
-  Home
-</Link>
-      <div className="max-w-4xl mx-auto space-y-10 mt-10">
+      <SpaceScene />
+      <Link to="/" className="relative z-20 flex items-center justify-end w-full">
+        <ArrowLeft size={24} sx={{ mr: 1 }} />
+        Home
+      </Link>
+      <div className="max-w-4xl mx-auto space-y-10 mt-5">
         <h1 className="text-3xl font-bold text-center">Item Placement</h1>
 
         {/* Item Input */}
@@ -123,15 +122,21 @@ const PlacementPage = () => {
         </Card>
 
         <div className="text-center">
-        <Button
-  className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-semibold transition duration-300"
-  onClick={handleSubmit}
-  disabled={loading}
->
-  {loading ? "Placing..." : "Place Item"}
-</Button>
-
+          <Button
+            className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-semibold transition duration-300"
+            onClick={handleSubmit}
+            disabled={loading}
+          >
+            {loading ? "Placing..." : "Place Item"}
+          </Button>
         </div>
+
+        {/* Success Message Below Button */}
+        {successMessage && (
+          <div className="text-center text-green-500 mt-4">
+            {successMessage}
+          </div>
+        )}
 
         {/* Display response */}
         {response && (

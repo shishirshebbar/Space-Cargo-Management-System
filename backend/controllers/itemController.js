@@ -5,7 +5,7 @@ const Waste = require("../models/Waste");
 
 exports.searchItem = async (req, res) => {
   try {
-    const { itemId, itemName } = req.query; 
+    const { itemId, itemName } = req.query;
 
     if (!itemId && !itemName) {
       return res.status(400).json({ success: false, message: "Provide itemId or itemName" });
@@ -14,21 +14,26 @@ exports.searchItem = async (req, res) => {
     let query = {};
 
     if (itemId) {
-      query.itemId = itemId.trim(); 
+      query.itemId = itemId.trim();
     } else {
       query.name = { $regex: new RegExp(itemName, "i") };
     }
 
     console.log("Search Query:", query);
 
-    const item = await Item.findOne(query);
+    // Fetching item data with selected fields: itemId, name, containerId, zone, position
+    const item = await Item.findOne(query).select('itemId name containerId preferredZone position width depth height priority expiryDate usageLimit currentUses createdAt');
     console.log("Found Item:", item);
 
     if (!item) {
       return res.json({ success: true, found: false });
     }
 
-    const { itemId: foundItemId, name, containerId, zone, position } = item;
+    const { itemId: foundItemId, name, containerId, preferredZone, position, width, depth, height, priority, expiryDate, usageLimit, currentUses, createdAt } = item;
+
+    // Ensure that position coordinates are returned with default values if not populated
+    const startCoordinates = position?.startCoordinates || { width: 0, depth: 0, height: 0 };
+    const endCoordinates = position?.endCoordinates || { width: 0, depth: 0, height: 0 };
 
     res.json({
       success: true,
@@ -36,9 +41,20 @@ exports.searchItem = async (req, res) => {
       item: {
         itemId: foundItemId,
         name,
-        containerId,
-        zone,
-        position,
+        containerId: containerId || "Not Assigned",   // Add default values if not populated
+        preferredZone: preferredZone || "Not Assigned", // Add default values if not populated
+        position: {
+          startCoordinates,
+          endCoordinates
+        },
+        width,
+        depth,
+        height,
+        priority,
+        expiryDate,
+        usageLimit,
+        currentUses,
+        createdAt,
       },
       retrievalSteps: [
         { step: 1, action: "remove", itemId: foundItemId, itemName: name },
@@ -46,10 +62,11 @@ exports.searchItem = async (req, res) => {
       ],
     });
   } catch (error) {
-    console.error(" Search Error:", error);
+    console.error("Search Error:", error);
     res.status(500).json({ success: false, message: "Failed to search for item" });
   }
 };
+
 
 
 

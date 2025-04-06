@@ -14,7 +14,7 @@ const ItemSchema = new mongoose.Schema({
     },
     usageLimit: { type: Number, required: true, default: 1 },
     currentUses: { type: Number, default: 0 },
-    preferredZone: { type: String, required: false },
+    preferredZone: { type: String, required: true },
     containerId: { type: String, required: false },
     position: {
         startCoordinates: {

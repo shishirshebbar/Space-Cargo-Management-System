@@ -216,6 +216,7 @@ const WastePage = () => {
       <Card className="max-w-4xl mx-auto shadow-lg mt-15">
         <CardHeader>
           <CardTitle className="text-2xl font-bold text-center">Complete Undocking</CardTitle>
+          <p className="text-center">(To undock container successfully enter the undocking container id same as the item's container id)</p>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 gap-10 mb-6">

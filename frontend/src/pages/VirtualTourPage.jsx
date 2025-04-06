@@ -19,7 +19,7 @@ const navItems = [
   { title: "Logs", path: "/logs", icon: FileText },
 ];
 
-// Generate globe-wise 3D positions
+
 const generateSpherePositions = (count, radius = 3) => {
   const positions = [];
   const goldenAngle = Math.PI * (3 - Math.sqrt(5)); // Fibonacci sphere magic
@@ -58,10 +58,10 @@ const VirtualTourPage = () => {
           <directionalLight position={[-10, 15, -10]} intensity={0.5} />
           <OrbitControls />
 
-          {/* 3D Model */}
+          
           <CargoBay />
 
-          {/* Floating buttons in spherical layout */}
+          
           {navItems.map(({ title, path, icon: Icon }, index) => (
             <Html key={title} position={positions[index]} center>
               <button
