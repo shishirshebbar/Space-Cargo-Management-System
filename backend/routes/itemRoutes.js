@@ -3,7 +3,7 @@ const router = express.Router();
 const itemController = require("../controllers/itemController");
 
 // Item Search API
-router.post("/search", itemController.searchItem);
+router.get("/search", itemController.searchItem);
 
 // Item Retrieval API
 router.post("/retrieve", itemController.retrieveItem);

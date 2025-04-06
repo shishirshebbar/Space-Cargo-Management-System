@@ -15,11 +15,14 @@ const ItemPage = () => {
   const [loading, setLoading] = useState(false);
   const [retrieved, setRetrieved] = useState(false);
   const [placed, setPlaced] = useState(false);
+  const [isWasted, setIsWasted] = useState(false);
 
-  // Placement fields
   const [containerIdInput, setContainerIdInput] = useState("");
   const [startCoordinates, setStartCoordinates] = useState({ width: "", depth: "", height: "" });
   const [endCoordinates, setEndCoordinates] = useState({ width: "", depth: "", height: "" });
+
+  const [placementMessage, setPlacementMessage] = useState("");
+  const [placementSuccess, setPlacementSuccess] = useState(null);
 
   const handleSearch = async () => {
     if (!itemId && !itemName) {
@@ -35,6 +38,9 @@ const ItemPage = () => {
         setRetrievalSteps(response.retrievalSteps);
         setRetrieved(false);
         setPlaced(false);
+        setIsWasted(false);
+        setPlacementMessage("");
+        setPlacementSuccess(null);
         toast.success("Item found successfully!");
       } else {
         setItemData(null);
@@ -52,12 +58,30 @@ const ItemPage = () => {
       toast.error("Search for an item first");
       return;
     }
+
     setLoading(true);
     try {
-      await retrieveItem({ itemId: itemData.itemId });
-      toast.success("Item retrieved successfully!");
-      setRetrieved(true);
-      setPlaced(false);
+      const response = await retrieveItem({
+        itemId: itemData.itemId,
+        userId: "user123",
+        timestamp: new Date().toISOString(),
+      });
+
+      if (response.message.includes("moved to waste")) {
+        setIsWasted(true);
+        setRetrieved(false);
+        setPlaced(false);
+        setPlacementMessage("❌ Item moved to waste: no remaining uses.");
+        setPlacementSuccess(false);
+        toast.error("Item moved to waste");
+      } else {
+        setIsWasted(false);
+        setRetrieved(true);
+        setPlaced(false);
+        setPlacementMessage("");
+        setPlacementSuccess(null);
+        toast.success("Item retrieved successfully!");
+      }
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to retrieve item");
     }
@@ -66,12 +90,14 @@ const ItemPage = () => {
 
   const handlePlace = async () => {
     if (!itemData || !retrieved) {
-      toast.error("Retrieve the item first");
+      setPlacementMessage("❌ Retrieve the item first");
+      setPlacementSuccess(false);
       return;
     }
 
     if (!containerIdInput || !startCoordinates.width || !endCoordinates.width) {
-      toast.error("Please fill all fields before placing.");
+      setPlacementMessage("❌ Please fill all fields before placing.");
+      setPlacementSuccess(false);
       return;
     }
 
@@ -94,24 +120,32 @@ const ItemPage = () => {
       },
     };
 
+    console.log("🛰️ Sending placementData:", placementData);
+
     setLoading(true);
     try {
       const response = await placeItem(placementData);
-      if (response.success) {
-        toast.success("Item placed successfully!");
+      console.log("📥 Place Item Response:", response);
+
+      if (response?.success) {
+        setPlacementMessage("✅ Item placed successfully!");
+        setPlacementSuccess(true);
         setPlaced(true);
       } else {
-        toast.error("Failed to place item.");
+        setPlacementMessage(response?.message || "❌ Placement failed without error message.");
+        setPlacementSuccess(false);
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to place item");
+      console.error("❌ Error placing item:", error);
+      setPlacementMessage(error.response?.data?.message || "❌ Failed to place item");
+      setPlacementSuccess(false);
     }
     setLoading(false);
   };
 
   return (
-    <div className="p-8  min-h-screen">
-      <Navbar/>
+    <div className="p-8 min-h-screen">
+      <Navbar />
       <Card className="max-w-2xl mx-auto shadow-lg mt-15">
         <CardHeader>
           <CardTitle className="text-2xl font-bold text-center">Item Management</CardTitle>
@@ -154,6 +188,11 @@ const ItemPage = () => {
               <p><strong>Container ID:</strong> {itemData.containerId}</p>
               <p><strong>Created At:</strong> {new Date(itemData.createdAt).toLocaleString()}</p>
             </div>
+            {isWasted && (
+    <p className="mt-4 text-center text-red-600 font-semibold text-md">
+      ❌ This item has been moved to waste and cannot be placed.
+    </p>
+  )}
 
             {retrievalSteps.length > 0 && (
               <div className="mt-4">
@@ -166,11 +205,17 @@ const ItemPage = () => {
               </div>
             )}
 
-            <Button className="w-full mt-4" onClick={handleRetrieve} disabled={loading || retrieved}>
+            <Button className="w-full mt-4" onClick={handleRetrieve} disabled={loading}>
               Retrieve Item
             </Button>
 
-            {retrieved && (
+            {placementMessage && (
+              <p className={`mt-2 text-center text-sm font-medium ${placementSuccess ? 'text-green-600' : 'text-red-600'}`}>
+                {placementMessage}
+              </p>
+            )}
+
+            {retrieved && !isWasted && (
               <div className="mt-6">
                 <p className="text-green-500 font-medium text-center">✅ Item retrieved. Ready to place.</p>
 

@@ -21,4 +21,7 @@ router.post("/containers", upload.single("file"), (req, res, next) => {
     next();
 }, importExportController.importContainers);
 
+router.get("/arrangement", importExportController.exportArrangement);
+
+
 module.exports = router;

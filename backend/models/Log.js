@@ -1,20 +1,41 @@
 const mongoose = require("mongoose");
 
-const LogSchema = new mongoose.Schema({
-  timestamp: { type: Date, default: Date.now },
-  userId: { type: String, required: true },
-  actionType: { 
-    type: String, 
-    required: true, 
-    enum: ["placement", "retrieval", "rearrangement", "disposal", "import", "export", "simulation"]
+const logSchema = new mongoose.Schema({
+  timestamp: {
+    type: String,
+    required: true
   },
-  itemId: { type: String },
-  containerId: { type: String },
+  userId: {
+    type: String,
+    required: false, // Make userId optional
+    default: null // Default to null if not provided
+  },
+  actionType: {
+    type: String,
+    required: true
+  },
+  itemId: {
+    type: String,
+    required: true
+  },
   details: {
-    fromContainer: { type: String },
-    toContainer: { type: String },
-    reason: { type: String }
+    fromContainer: {
+      type: String,
+      required: true
+    },
+    toContainer: {
+      type: String,
+      required: false, // Not always required
+      default: null
+    },
+    reason: {
+      type: String,
+      required: true
+    }
   }
 });
 
-module.exports = mongoose.model("Log", LogSchema);
+// Check if the model is already compiled to avoid overwriting
+const Log = mongoose.models.Log || mongoose.model("Log", logSchema);
+
+module.exports = Log;

@@ -5,13 +5,14 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import Navbar from "@/comp/Navbar";
-import { Loader2 } from "lucide-react";
+import { Loader2, Download } from "lucide-react";
 
 const ImportExportPage = () => {
   const [itemsFile, setItemsFile] = useState(null);
   const [containersFile, setContainersFile] = useState(null);
   const [loadingItems, setLoadingItems] = useState(false);
   const [loadingContainers, setLoadingContainers] = useState(false);
+  const [downloadingArrangement, setDownloadingArrangement] = useState(false);
 
   const handleImportItems = async () => {
     if (!itemsFile) {
@@ -20,17 +21,15 @@ const ImportExportPage = () => {
     }
 
     setLoadingItems(true);
-    const formData = new FormData();
-    formData.append("file", itemsFile);
-
     try {
-      await importItems(formData);
+      await importItems(itemsFile);
       toast.success("Items imported successfully!");
       setItemsFile(null);
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to import items");
+    } finally {
+      setLoadingItems(false);
     }
-    setLoadingItems(false);
   };
 
   const handleImportContainers = async () => {
@@ -40,24 +39,42 @@ const ImportExportPage = () => {
     }
 
     setLoadingContainers(true);
-    const formData = new FormData();
-    formData.append("file", containersFile);
-
     try {
-      await importContainers(formData);
+      await importContainers(containersFile);
       toast.success("Containers imported successfully!");
       setContainersFile(null);
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to import containers");
+    } finally {
+      setLoadingContainers(false);
     }
-    setLoadingContainers(false);
+  };
+
+  const handleDownloadArrangement = async () => {
+    setDownloadingArrangement(true);
+    try {
+      const response = await fetch("http://localhost:8000/api/export/arrangement");
+      const blob = await response.blob();
+
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "arrangement.csv";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      toast.error("Failed to download arrangement");
+    } finally {
+      setDownloadingArrangement(false);
+    }
   };
 
   return (
-    <div className="p-8  min-h-screen">
+    <div className="p-8 min-h-screen">
       <Navbar />
       <div className="max-w-2xl mx-auto mt-10">
-        <h1 className="text-3xl font-bold text-center text-white-900 mb-8">Import Data</h1>
+        <h1 className="text-3xl font-bold text-center text-white-900 mb-8">Import / Export Data</h1>
 
         <div className="space-y-6">
           {/* Import Items Card */}
@@ -100,6 +117,23 @@ const ImportExportPage = () => {
                 disabled={loadingContainers}
               >
                 {loadingContainers ? <Loader2 className="animate-spin h-5 w-5 mr-2" /> : "Import Containers"}
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* Export Arrangement Card */}
+          <Card className="shadow-lg rounded-xl">
+            <CardHeader>
+              <CardTitle className="text-xl font-semibold">Export Arrangement</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Button 
+                className="w-full flex items-center justify-center"
+                onClick={handleDownloadArrangement}
+                disabled={downloadingArrangement}
+              >
+                {downloadingArrangement ? <Loader2 className="animate-spin h-5 w-5 mr-2" /> : <Download className="h-5 w-5 mr-2" />} 
+                Download Arrangement
               </Button>
             </CardContent>
           </Card>

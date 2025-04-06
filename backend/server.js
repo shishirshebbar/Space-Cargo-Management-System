@@ -11,6 +11,7 @@ const wasteRoutes = require("./routes/wasteRoutes");
 const simulationRoutes = require("./routes/simulationRoutes");
 const importExportRoutes = require("./routes/importExportRoutes");
 const logRoutes = require("./routes/logRoutes");
+const exportRoutes = require("./routes/exportRoutes");
 
 dotenv.config(); // Load environment variables
 
@@ -32,11 +33,12 @@ app.use((req, res, next) => {
 
 // API Routes
 app.use("/api/placement", placementRoutes);
-app.use("/api/items", itemRoutes);
+app.use("/api/", itemRoutes);
 app.use("/api/waste", wasteRoutes);
 app.use("/api/simulate", simulationRoutes);
-app.use("/api/import", importExportRoutes); // ✅ Ensure this is correct
+app.use("/api/import", importExportRoutes); 
 app.use("/api/logs", logRoutes);
+app.use("/api/export",exportRoutes)
 
 // Error Handling Middleware
 app.use(errorHandler);

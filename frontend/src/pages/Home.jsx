@@ -20,9 +20,10 @@ const Home = () => {
   const centerRef = useRef(null);
 
   const sections = [
+    { title: "Import/Export", path: "/import-export", icon: Import },
     { title: "Item Management", path: "/items", icon: Package },
     { title: "Placement", path: "/placement", icon: Box },
-    { title: "Import/Export", path: "/import-export", icon: Import },
+    
     { title: "Waste Management", path: "/waste", icon: Trash2 },
     { title: "Simulation", path: "/simulation", icon: Activity },
     { title: "Logs", path: "/logs", icon: FileText },
@@ -49,8 +50,8 @@ const Home = () => {
         <p className="max-w-3xl text-gray-300 text-lg mb-5 text-center drop-shadow-md">
           Spaceship Cargo Management is a cutting-edge 3D visualization system
           designed to streamline cargo stowage for interplanetary missions. By
-          integrating intelligent space optimization, real-time inventory
-          tracking, and AI-driven placement recommendations, our platform ensures
+          integrating intelligent space optimization and real-time inventory
+          tracking, our platform ensures
           efficient utilization of cargo holds, reducing waste and improving
           mission logistics.
         </p>
@@ -74,12 +75,14 @@ const Home = () => {
 
           {/* Center Button */}
           <div className="flex flex-col items-center" ref={centerRef}>
-  <Button
-    className="px-20 py-10 text-2xl font-semibold rounded-xl shadow-lg"
-    onClick={() => navigate("/virtual-tour")}
-  >
-    Start a 3D Virtual Tour
-  </Button>
+          <Button
+  className="px-18 py-10 text-2xl font-semibold rounded-xl shadow-lg transition duration-300 ease-in-out
+             bg-blue-600 hover:bg-blue-700 hover:shadow-[0_0_25px_rgba(59,130,246,0.8)] cursor-pointer"
+  onClick={() => navigate("/virtual-tour")}
+>
+  Start a 3D Virtual Tour
+</Button>
+
 </div>
 
 

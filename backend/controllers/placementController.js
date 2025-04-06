@@ -1,37 +1,45 @@
 const Item = require("../models/Item");
-const Container = require("../models/Container");
-
-/**
- * Places items in available containers based on priority and space constraints.
- * Items with higher priority are placed first in preferred zones.
- */
 exports.placeItems = async (req, res) => {
   try {
-    // Fetch all items and containers from the database
-    const items = await Item.find({ containerId: null }).sort({ priority: -1 });
-    const containers = await Container.find();
+    const { items = [], containers = [] } = req.body;
 
-    let placements = [];
+    if (!items.length || !containers.length) {
+      return res.status(400).json({
+        success: false,
+        message: "Items and containers are required in the request body",
+      });
+    }
 
-    // Iterate over each item to find a suitable container
+    items.sort((a, b) => b.priority - a.priority);
+
+    const placements = [];
+    const rearrangements = [];
+    let step = 1;
+
+    const fitsInContainer = (item, container) => {
+      return (
+        item.width <= container.width &&
+        item.depth <= container.depth &&
+        item.height <= container.height
+      );
+    };
+
     for (const item of items) {
-      let suitableContainer = null;
+      let selectedContainer = null;
 
-      // Try to find a container in the preferred zone first
-      for (const container of containers) {
-        if (container.zone === item.preferredZone) {
-          suitableContainer = container;
-          break;
-        }
+      const preferredContainers = containers.filter(
+        (c) => c.zone === item.preferredZone && fitsInContainer(item, c)
+      );
+
+      if (preferredContainers.length) {
+        selectedContainer = preferredContainers[0];
+      } else {
+        selectedContainer = containers.find((c) => fitsInContainer(item, c));
       }
 
-      // If no preferred zone container is available, pick any available one
-      if (!suitableContainer) {
-        suitableContainer = containers.find((c) => !placements.some((p) => p.containerId === c.containerId));
-      }
+      if (selectedContainer) {
+        const containerId = selectedContainer.containerId;
 
-      if (suitableContainer) {
-        // Assign item to the container and calculate position
         const position = {
           startCoordinates: { width: 0, depth: 0, height: 0 },
           endCoordinates: {
@@ -41,24 +49,38 @@ exports.placeItems = async (req, res) => {
           },
         };
 
-        // Save placement details
+        // ✅ Save the placement to the database
+        await Item.findOneAndUpdate(
+          { itemId: item.itemId },
+          {
+            containerId,
+            zone: selectedContainer.zone,
+            position,
+          },
+          { new: true }
+        );
+
         placements.push({
           itemId: item.itemId,
-          containerId: suitableContainer.containerId,
+          containerId,
           position,
         });
 
-        // Update the item record in the database
-        await Item.findByIdAndUpdate(item._id, {
-          containerId: suitableContainer.containerId,
-          position,
+        rearrangements.push({
+          step: step++,
+          action: "place",
+          itemId: item.itemId,
+          fromContainer: null,
+          fromPosition: null,
+          toContainer: containerId,
+          toPosition: position,
         });
       }
     }
 
-    res.json({ success: true, placements });
+    res.json({ success: true, placements, rearrangements });
   } catch (error) {
-    console.error("Placement Error:", error);
+    console.error("Placement error:", error);
     res.status(500).json({ success: false, message: "Failed to place items" });
   }
 };
