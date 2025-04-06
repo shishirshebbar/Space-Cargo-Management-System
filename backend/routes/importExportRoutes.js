@@ -7,17 +7,17 @@ const multer = require("multer");
 const upload = multer({ dest: "uploads/" });
 
 
-console.log("✅ ImportExportRoutes initialized");
+console.log("ImportExportRoutes initialized");
 
 
 router.post("/items", upload.single("file"), (req, res, next) => {
-    console.log("📩 Received request to /api/import/items");
+    console.log(" Received request to /api/import/items");
     next();
 }, importExportController.importItems);
 
 
 router.post("/containers", upload.single("file"), (req, res, next) => {
-    console.log("📩 Received request to /api/import/containers");
+    console.log(" Received request to /api/import/containers");
     next();
 }, importExportController.importContainers);
 

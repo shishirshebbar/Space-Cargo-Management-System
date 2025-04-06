@@ -64,6 +64,7 @@ This application is designed to manage cargo within a space station, automating 
         ```
 
 3. **Frontend Setup:**
+    
 
     - Navigate to the frontend directory:
 
@@ -82,6 +83,45 @@ This application is designed to manage cargo within a space station, automating 
         ```bash
         npm run dev
         ```
+
+
+## Running with Docker
+
+### Prerequisites
+
+- Docker must be installed and running on your system.
+- Ensure your `.env` file exists inside the `backend/` folder with the following content:
+
+```
+MONGO_URI=mongodb://host.docker.internal:27017/your-db-name
+```
+
+> On Windows, `host.docker.internal` lets the container talk to your host machine where MongoDB is running.
+
+### Steps
+
+1. **At the root of the repo**, make sure your structure is:
+
+```
+├── backend/
+├── frontend/
+├── Dockerfile
+```
+2. **Build the Docker image:**
+```bash
+docker build -t my-backend-app .
+```
+3. **Run the container:**
+```bash
+docker run -p 8000:8000 \
+  -e MONGO_URI="mongodb://host.docker.internal:27017/your-db-name" \
+  my-backend-app
+```
+4. **Test the API:**
+
+Visit:
+`http://localhost:8000/api/items/search`
+or other available endpoints.
 
 ## Functionality
 
