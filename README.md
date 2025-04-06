@@ -38,8 +38,8 @@ This application is designed to manage cargo within a space station, automating 
 1. **Clone the repository:**
 
     ```bash
-    https://github.com/shishirshebbar/Space-Cargo-Management-System.git
-    cd <repository_name>
+    git clone https://github.com/shishirshebbar/Space-Cargo-Management-System.git
+    cd Space-Cargo-Management-System
     ```
 
 2. **Backend Setup:**
