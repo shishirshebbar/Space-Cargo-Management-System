@@ -27,5 +27,8 @@ COPY backend/ .
 # Expose port 8000 for API
 EXPOSE 8000
 
+# Ensure MONGO_URI is set correctly for Docker Compose
+ENV MONGO_URI=mongodb://mongodb:27017/spaceproject
+
 # Start the backend app
 CMD ["node", "server.js"]
